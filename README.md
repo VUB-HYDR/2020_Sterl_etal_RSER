@@ -11,7 +11,7 @@ The Python scripts were written for Python 3.7. Scripts need to be run in the or
 
 # 2. Use
 ---
-The reader is referred to the official REVUB manual on the REVUB GitHub page (https://github.com/VUB-HYDR/REVUB)
+The reader is referred to the official REVUB manual on the REVUB GitHub page (https://github.com/VUB-HYDR/REVUB/blob/master/manual/REVUB_manual.pdf).
 
 
 ## License
