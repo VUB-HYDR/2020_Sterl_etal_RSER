@@ -9,10 +9,10 @@ Created on Thu Jan 16 12:12:57 2020
 ######### REVUB core code #########
 ###################################
 
-# REVUB model © 2019 CIREG project
+# © 2019 CIREG project
 # Author: Sebastian Sterl, Vrije Universiteit Brussel
-# This code accompanies the paper "Turbines of the Caribbean: Decarbonising Suriname's electricity mix through hydro-supported integration of wind power" by Sterl et al.
-# All equation, section &c. numbers refer to the official REVUB manual (see corresponding GitHub page, https://github.com/VUB-HYDR/REVUB).
+# This code accompanies the paper "Smart renewable electricity portfolios in West Africa" by Sterl et al.
+# All equation, section &c. numbers refer to that paper's Supplementary Information or equivalently the REVUB manual.
 
 import numpy as np
 import pandas as pd
@@ -31,6 +31,7 @@ N_ELCC = 10**3
 # for each HPP, regardless of differences in volume, head, rated power, &c.
 # The value f_init_BAL_end may have to be increased in scenarios where the ELCC becomes extremely high,
 # e.g. when extremely good balancing sources other than hydro are present.
+# For the scenarios in (Sterl et al.), the below ranges work for all HPPs.
 f_init_BAL_start = 0
 f_init_BAL_step = 0.2
 f_init_BAL_end = 1
@@ -436,7 +437,7 @@ for HPP in range(HPP_number):
 # This section carries out the actual REVUB optimization.
 
 # [loop] carry out CONV, BAL and (optionally) STOR simulation for every HPP
-for HPP in range(1): #range(HPP_number):
+for HPP in range(HPP_number):
     
     # [display] HPP for which simulation is being performed
     print("HPP", HPP + 1, "/", HPP_number, ":", HPP_name[HPP])
@@ -779,10 +780,6 @@ for HPP in range(1): #range(HPP_number):
                             Q_pot_turb_BAL = np.min([Q_BAL_stable_hourly[n,y,HPP], Q_max_turb[HPP]])
                             P_BAL_hydro_stable_hourly[n,y,HPP] = Q_pot_turb_BAL*eta_turb*rho*g*h_BAL_hourly[n,y,HPP]/10**6
                             
-                            # [ADDED] check if not exceeding total load; otherwise reduce flexible generation
-                            if P_BAL_hydro_stable_hourly[n,y,HPP] + P_BAL_hydro_flexible_hourly[n,y,HPP] > P_total_hourly[n,y,HPP]:
-                                P_BAL_hydro_flexible_hourly[n,y,HPP] = P_total_hourly[n,y,HPP] - P_BAL_hydro_stable_hourly[n,y,HPP]
-                                
                             # [calculate] flexible turbined flow in m^3/s (eq. S18)
                             if h_BAL_hourly[n,y,HPP] > 0:
                                 Q_BAL_flexible_hourly[n,y,HPP] = P_BAL_hydro_flexible_hourly[n,y,HPP]/(eta_turb*rho*g*h_BAL_hourly[n,y,HPP])*10**6
@@ -888,6 +885,10 @@ for HPP in range(1): #range(HPP_number):
                     # [check] if droughts do not occur in CONV, then neither should they in BAL
                 elif np.nanmin(V_CONV_hourly[:,:,HPP]) >= f_stop*V_max[HPP] and np.nanmin(V_BAL_hourly[:,:,HPP]) < f_stop*V_max[HPP]:
                     psi_BAL[f] = np.nan
+                    
+                # [NEW] to speed up simulation
+                if f > 0 and (psi_BAL[f] > psi_BAL[f-1] or (np.isnan(psi_BAL[f]))):
+                    break
                 
             
             # [identify] minimum in psi (eq. S21)
@@ -1051,10 +1052,6 @@ for HPP in range(1): #range(HPP_number):
                     Q_pot_turb_BAL = np.min([Q_BAL_stable_hourly[n,y,HPP], Q_max_turb[HPP]])
                     P_BAL_hydro_stable_hourly[n,y,HPP] = Q_pot_turb_BAL*eta_turb*rho*g*h_BAL_hourly[n,y,HPP]/10**6
                     
-                    # [ADDED] check if not exceeding total load; otherwise reduce flexible generation
-                    if P_BAL_hydro_stable_hourly[n,y,HPP] + P_BAL_hydro_flexible_hourly[n,y,HPP] > P_total_hourly[n,y,HPP]:
-                        P_BAL_hydro_flexible_hourly[n,y,HPP] = P_total_hourly[n,y,HPP] - P_BAL_hydro_stable_hourly[n,y,HPP]
-                        
                     # [calculate] flexible turbined flow in m^3/s (eq. S18)
                     if h_BAL_hourly[n,y,HPP] > 0:
                         Q_BAL_flexible_hourly[n,y,HPP] = P_BAL_hydro_flexible_hourly[n,y,HPP]/(eta_turb*rho*g*h_BAL_hourly[n,y,HPP])*10**6
@@ -1158,11 +1155,11 @@ for HPP in range(1): #range(HPP_number):
                 
                 
                 ##### IDENTIFY YEARLY ELCC #####
-                
+
                 # [calculate] total supplied HSW generation under optimal BAL solution
                 total_power_supply_BAL = P_BAL_hydro_stable_hourly[hrs_year,y,HPP] + P_BAL_hydro_flexible_hourly[hrs_year,y,HPP] + np.mean(c_multiplier_BAL[:,HPP])*c_solar_relative[HPP]*CF_solar_hourly[hrs_year,y,HPP] + np.mean(c_multiplier_BAL[:,HPP])*c_wind_relative[HPP]*CF_wind_hourly[hrs_year,y,HPP]
                 N_power_supply_BAL = int(np.ceil(np.max(total_power_supply_BAL)))
-                
+
                 # [preallocate] range in which to identify ELCC
                 P_followed_BAL_range[y,:,HPP] = np.linspace(0,N_power_supply_BAL,N_ELCC)
                 power_unmet_BAL = np.zeros(shape = N_ELCC)
@@ -1270,10 +1267,10 @@ for HPP in range(1): #range(HPP_number):
         ratio_ELCC_E_hydro_BAL_yearly[:,HPP] = ELCC_BAL_yearly[:,HPP]/(E_hydro_BAL_nonRoR_yearly[:,HPP] + E_hydro_BAL_RoR_yearly[:,HPP])
         ratio_ELCC_E_hydro_BAL_median[HPP] = np.nanmedian(ratio_ELCC_E_hydro_BAL_yearly[:,HPP])
         
-        # [calculate] yearly hydropower capacity factor for CONV
+        # [CHANGED] [calculate] yearly hydropower capacity factor for CONV
         CF_hydro_CONV_yearly[:,HPP] = (E_hydro_CONV_stable_yearly[:,HPP] + E_hydro_CONV_RoR_yearly[:,HPP])/((P_r_turb[HPP]/f_power)*hrs_byyear)
         
-        # [calculate] hourly hydropower capacity factor for BAL (eq. S42)
+        # [CHANGED] calculate] hourly hydropower capacity factor for BAL (eq. S42)
         CF_hydro_BAL_hourly[:,:,HPP] = (P_BAL_hydro_stable_hourly[:,:,HPP] + P_BAL_hydro_flexible_hourly[:,:,HPP] + P_BAL_hydro_RoR_hourly[:,:,HPP])/(P_r_turb[HPP]/f_power)
         
         # [calculate] turbine exhaustion factor k_turb in BAL (eq. S28)
@@ -1493,10 +1490,6 @@ for HPP in range(1): #range(HPP_number):
                                 # [calculate] stable hydropower generation in MW (eq. S15)
                                 Q_pot_turb_STOR = np.min([Q_STOR_stable_hourly[n,y,HPP], Q_max_turb[HPP]])
                                 P_STOR_hydro_stable_hourly[n,y,HPP] = Q_pot_turb_STOR*eta_turb*rho*g*h_STOR_hourly[n,y,HPP]/10**6
-    
-                                # [ADDED] check if not exceeding total load; otherwise reduce flexible generation
-                                if P_STOR_hydro_stable_hourly[n,y,HPP] + P_STOR_hydro_flexible_hourly[n,y,HPP] > P_total_hourly[n,y,HPP]:
-                                    P_STOR_hydro_flexible_hourly[n,y,HPP] = P_total_hourly[n,y,HPP] - P_STOR_hydro_stable_hourly[n,y,HPP]
                                 
                                 # [calculate] flexible turbined flow (eq. S18) and pumped flow (eq. 39) in m^3/s
                                 if h_STOR_hourly[n,y,HPP] > 0:
@@ -1609,6 +1602,10 @@ for HPP in range(1): #range(HPP_number):
                         # [check] if droughts do not occur in CONV, then neither should they in STOR
                     elif np.nanmin(V_CONV_hourly[:,:,HPP]) >= f_stop*V_max[HPP] and np.nanmin(V_STOR_hourly_upper[:,:,HPP]) < f_stop*V_max[HPP]:
                         psi_STOR[f] = np.nan
+                        
+                    # [NEW] to speed up simulation
+                    if f > 0 and (psi_STOR[f] > psi_STOR[f-1] or (np.isnan(psi_STOR[f]))):
+                        break
                     
                 
                 # [identify] minimum in psi (eq. S21)
@@ -1804,10 +1801,6 @@ for HPP in range(1): #range(HPP_number):
                         # [calculate] stable hydropower generation in MW (eq. S15)
                         Q_pot_turb_STOR = np.min([Q_STOR_stable_hourly[n,y,HPP], Q_max_turb[HPP]])
                         P_STOR_hydro_stable_hourly[n,y,HPP] = Q_pot_turb_STOR*eta_turb*rho*g*h_STOR_hourly[n,y,HPP]/10**6
-
-                        # [ADDED] check if not exceeding total load; otherwise reduce flexible generation
-                        if P_STOR_hydro_stable_hourly[n,y,HPP] + P_STOR_hydro_flexible_hourly[n,y,HPP] > P_total_hourly[n,y,HPP]:
-                            P_STOR_hydro_flexible_hourly[n,y,HPP] = P_total_hourly[n,y,HPP] - P_STOR_hydro_stable_hourly[n,y,HPP]
                         
                         # [calculate] flexible turbined flow (eq. S18) and pumped flow (eq. 39) in m^3/s
                         if h_STOR_hourly[n,y,HPP] > 0:
@@ -2028,7 +2021,7 @@ for HPP in range(1): #range(HPP_number):
             ratio_ELCC_E_hydro_STOR_yearly[:,HPP] = ELCC_STOR_yearly[:,HPP]/E_hydro_STOR_yearly[:,HPP]
             ratio_ELCC_E_hydro_STOR_median[HPP] = np.nanmedian(ratio_ELCC_E_hydro_STOR_yearly[:,HPP])
 
-            # [calculate] hourly hydropower capacity factor for STOR (eq. S42)
+            # [CHANGED] calculate] hourly hydropower capacity factor for STOR (eq. S42)
             CF_hydro_STOR_hourly[:,:,HPP] = (P_STOR_hydro_stable_hourly[:,:,HPP] + P_STOR_hydro_flexible_hourly[:,:,HPP])/(P_r_turb[HPP]/f_power)
             
             # [calculate] turbine exhaustion factor k_turb in STOR (eq. S28)
