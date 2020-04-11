@@ -874,7 +874,7 @@ for HPP in range(HPP_number):
                 temp_volume_upper_BAL_series = (np.transpose(temp_volume_upper_BAL_series)).ravel()
                 temp_volume_upper_BAL_series = temp_volume_upper_BAL_series[np.isfinite(temp_volume_upper_BAL_series)]
                 
-                # [CHANGED] [calculate] deviation between CONV and BAL reservoir dynamics (eq. S21)
+                # [CHANGED] [calculate] deviation between rule curve and BAL reservoir dynamics (eq. S21)
                 psi_BAL[f] = np.mean(np.abs(temp_volume_upper_BAL_series - rule_curve_volume_series[:,HPP]))/np.mean(rule_curve_volume_series[:,HPP])
                 
                 # [check] see explanation below eq. S21: if droughts occur in CONV, BAL should have no MORE days of curtailed flow than CONV ...
@@ -1590,7 +1590,7 @@ for HPP in range(HPP_number):
                     temp_volume_upper_STOR_series = (np.transpose(temp_volume_upper_STOR_series)).ravel()
                     temp_volume_upper_STOR_series = temp_volume_upper_STOR_series[np.isfinite(temp_volume_upper_STOR_series)]
                     
-                    # [CHANGED] [calculate] deviation between CONV and STOR reservoir dynamics (eq. S21)
+                    # [CHANGED] [calculate] deviation between rule curve and STOR reservoir dynamics (eq. S21)
                     psi_STOR[f] = np.mean(np.abs(temp_volume_upper_STOR_series - rule_curve_volume_series[:,HPP]))/np.mean(rule_curve_volume_series[:,HPP])
                     
                     # [check] see explanation below eq. S21: if droughts occur in CONV, STOR should have no MORE days of curtailed flow than CONV ...
