@@ -9,10 +9,10 @@ Created on Thu Jan 16 12:12:57 2020
 ######### REVUB core code #########
 ###################################
 
-# © 2019 CIREG project
+# REVUB model © 2019 CIREG project
 # Author: Sebastian Sterl, Vrije Universiteit Brussel
-# This code accompanies the paper "Smart renewable electricity portfolios in West Africa" by Sterl et al.
-# All equation, section &c. numbers refer to that paper's Supplementary Information or equivalently the REVUB manual.
+# This code accompanies the paper "Turbines of the Caribbean: Decarbonising Suriname's electricity mix through hydro-supported integration of wind power" by Sterl et al.
+# All equation, section &c. numbers refer to the official REVUB manual (see corresponding GitHub page, https://github.com/VUB-HYDR/REVUB).
 
 import numpy as np
 import pandas as pd
