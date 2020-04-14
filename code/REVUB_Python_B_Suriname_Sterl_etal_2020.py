@@ -302,8 +302,8 @@ P_STOR_difference_hourly = np.full([int(np.max(positions)), len(simulation_years
 P_BAL_inflexible_hourly = np.full([int(np.max(positions)), len(simulation_years), HPP_number], np.nan)
 P_STOR_inflexible_hourly = np.full([int(np.max(positions)), len(simulation_years), HPP_number], np.nan)
 
-# [preallocate] RLDC = Residual Load Duration Curve; sorted array of P_stable +
-# P_flexible + P_solar + P_wind (- P_pump) (in MW or MWh/h)
+# [preallocate] RLDC = Residual Load Duration Curve; sorted array of L_followed - 
+# (P_stable + P_flexible + P_solar + P_wind (- P_pump)) (in MW or MWh/h)
 L_res_BAL_hourly = np.full([int(np.max(positions)), len(simulation_years), HPP_number], np.nan)
 L_res_STOR_hourly = np.full([int(np.max(positions)), len(simulation_years), HPP_number], np.nan)
 
@@ -1162,12 +1162,6 @@ for HPP in range(HPP_number):
         ###############################################################
         ############------ CHECK NEED TO RESIMULATE -------############
         ###############################################################
-
-        # [CHANGED] [calculate] yearly hydropower capacity factor for CONV
-        CF_hydro_CONV_yearly[:,HPP] = (E_hydro_CONV_stable_yearly[:,HPP] + E_hydro_CONV_RoR_yearly[:,HPP])/((P_r_turb[HPP]/f_power)*hrs_byyear)
-        
-        # [CHANGED] [calculate] hourly hydropower capacity factor for BAL (eq. S42)
-        CF_hydro_BAL_hourly[:,:,HPP] = (P_BAL_hydro_stable_hourly[:,:,HPP] + P_BAL_hydro_flexible_hourly[:,:,HPP] + P_BAL_hydro_RoR_hourly[:,:,HPP])/(P_r_turb[HPP]/f_power)
         
         # [calculate] turbine exhaustion factor k_turb in BAL (eq. S28)
         k_turb_hourly_BAL[:,:,HPP] = (Q_BAL_stable_hourly[:,:,HPP] + Q_BAL_flexible_hourly[:,:,HPP])/Q_max_turb[HPP]
@@ -1862,9 +1856,6 @@ for HPP in range(HPP_number):
             ############------ CHECK NEED TO RESIMULATE -------############
             ###############################################################
             
-            # [CHANGED] [calculate] hourly hydropower capacity factor for STOR (eq. S42)
-            CF_hydro_STOR_hourly[:,:,HPP] = (P_STOR_hydro_stable_hourly[:,:,HPP] + P_STOR_hydro_flexible_hourly[:,:,HPP])/(P_r_turb[HPP]/f_power)
-            
             # [calculate] turbine exhaustion factor k_turb in STOR (eq. S28)
             k_turb_hourly_STOR[:,:,HPP] = (Q_STOR_stable_hourly[:,:,HPP] + Q_STOR_flexible_hourly[:,:,HPP])/Q_max_turb[HPP]
             
@@ -1898,6 +1889,16 @@ for HPP in range(HPP_number):
 
 # [loop] across all HPPs
 for HPP in range(HPP_number):
+    
+    # [CHANGED] [calculate] yearly hydropower capacity factor for CONV
+    CF_hydro_CONV_yearly[:,HPP] = (E_hydro_CONV_stable_yearly[:,HPP] + E_hydro_CONV_RoR_yearly[:,HPP])/((P_r_turb[HPP]/f_power)*hrs_byyear)
+    
+    # [CHANGED] [calculate] hourly hydropower capacity factor for BAL (eq. S42)
+    CF_hydro_BAL_hourly[:,:,HPP] = (P_BAL_hydro_stable_hourly[:,:,HPP] + P_BAL_hydro_flexible_hourly[:,:,HPP] + P_BAL_hydro_RoR_hourly[:,:,HPP])/(P_r_turb[HPP]/f_power)
+    
+    # [CHANGED] [calculate] hourly hydropower capacity factor for STOR (eq. S42)
+    CF_hydro_STOR_hourly[:,:,HPP] = (P_STOR_hydro_stable_hourly[:,:,HPP] + P_STOR_hydro_flexible_hourly[:,:,HPP])/(P_r_turb[HPP]/f_power)
+    
     
     # [loop] across all simulation years
     for y in range(len(simulation_years)):
