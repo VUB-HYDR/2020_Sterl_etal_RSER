@@ -499,7 +499,7 @@ for HPP in range(HPP_number):
             h_CONV_hourly[n+1,y,HPP] = calibrate_head[h_temp,HPP]
             
             # [calculate] whether lake levels have dropped so low as to require hydropower curtailment
-            # [calculate] for small HPPs: use "RoR" flow component to fill up reservoir in case water levels have dropped below f_release*V_max
+            # [calculate] for small HPPs: use "RoR" flow component to fill up reservoir in case water levels have dropped below f_restart*V_max
             # (see explanation below eq. S33)
             if HPP_category[HPP] == "B":
                 if V_CONV_hourly[n+1,y,HPP] < f_restart*V_max[HPP]:
@@ -790,7 +790,7 @@ for HPP in range(HPP_number):
                                     P_BAL_ramp_restr_hourly[n+1,y,HPP] = 0
                                 
                             # [calculate] whether lake levels have dropped so low as to require hydropower curtailment
-                            # [calculate] for small HPPs: use "RoR" flow component to fill up reservoir in case water levels have dropped below f_release*V_max
+                            # [calculate] for small HPPs: use "RoR" flow component to fill up reservoir in case water levels have dropped below f_restart*V_max
                             # (see explanation below eq. S33)
                             if HPP_category[HPP] == "B":
                                 if V_BAL_hourly[n+1,y,HPP] < f_restart*V_max[HPP]:
@@ -1061,7 +1061,7 @@ for HPP in range(HPP_number):
                             P_BAL_ramp_restr_hourly[n+1,y,HPP] = 0
                         
                     # [calculate] whether lake levels have dropped so low as to require hydropower curtailment
-                    # [calculate] for small HPPs: use "RoR" flow component to fill up reservoir in case water levels have dropped below f_release*V_max
+                    # [calculate] for small HPPs: use "RoR" flow component to fill up reservoir in case water levels have dropped below f_restart*V_max
                     # (see explanation below eq. S33)
                     if HPP_category[HPP] == "B":
                         if V_BAL_hourly[n+1,y,HPP] < f_restart*V_max[HPP]:
