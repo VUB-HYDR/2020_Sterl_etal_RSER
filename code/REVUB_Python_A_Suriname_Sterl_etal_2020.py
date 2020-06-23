@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import numbers as nb
 
-## pre.1) Time-related parameters
+# %% pre.1) Time-related parameters
 
 # [set by user] number of hydropower plants in this simulation
 HPP_number = 1
@@ -60,7 +60,7 @@ for y in range(len(simulation_years)):
         positions[n+1,y] = hrs_day*days_year[n,y] + positions[n,y]
 
 
-## pre.2) Model parameters
+# %% pre.2) Model parameters
         
 ##### GENERAL HYDROPOWER DATA #####
         
@@ -130,7 +130,7 @@ LOEE_allowed = 0.00
 f_size = 80
 
 
-## pre.3) Static parameters
+# %% pre.3) Static parameters
 
 # [set by user] name of hydropower plant
 HPP_name = ["Afobaka"]
@@ -162,7 +162,7 @@ Q_max_turb = (P_r_turb/f_power) / (eta_turb*rho*g*h_max) * 10**6
 Q_max_pump = (P_r_pump) / (eta_turb**(-1)*rho*g*h_max) * 10**6
 
 
-## pre.4) Time series
+# %% pre.4) Time series
 
 # [preallocate]
 L_norm = np.zeros(shape = (int(np.max(positions)), len(simulation_years), HPP_number))
@@ -201,7 +201,7 @@ CF_wind_hourly[:,:,0] = CF_wind_weighted
 
 
 
-## pre.5) Bathymetry
+# %% pre.5) Bathymetry
 
 # [set by user] Calibration curves used during simulations
 temp = pd.read_excel (r'Suriname_bathymetry_Sterl_etal_2020.xlsx', sheet_name = 'Afobaka', header = None)
