@@ -1,7 +1,7 @@
 
 # 2020_Sterl_etal_RSER 
 
-Code for the paper "Turbines of the Caribbean: Decarbonising Suriname's electricity mix through hydro-supported integration of wind power" (in preparation).
+Code for the paper "Turbines of the Caribbean: Decarbonising Suriname's electricity mix through hydro-supported integration of wind power" (https://doi.org/10.1016/j.rser.2020.110352).
 This is a case study application of the REVUB model, which can be found on the corresponding GitHub page (https://github.com/VUB-HYDR/REVUB).
 
 # To install and use
